@@ -498,7 +498,7 @@ function afficherCours(){
       <div class="course">
         <h3>📊 Économie</h3>
         <p>Niveau : L1</p>
-        <button onclick="reserver('Économie L1')">Réserver</button>
+         <button onclick="reserver(this, 'Économie L1')">Réserver</button>
       </div>
     `;
 
@@ -514,7 +514,7 @@ function afficherCours(){
         <div class="course">
           <h3>📘 ${c.matiere}</h3>
           <p>Niveau : ${c.niveau}</p>
-          <button onclick="reserver('${c.matiere} ${c.niveau}')">
+          <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
             Réserver
           </button>
         </div>
