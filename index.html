@@ -528,13 +528,23 @@ function afficherCours(){
 }
 
 
-function reserver(cours) {
+function reserver(btn, cours) {
 
   if(!checkAuth()) return;
 
   coursChoisi = cours;
+
+  // afficher formulaire
   document.getElementById("formSection").style.display = "block";
-}
+
+  // remettre toutes les cartes en blanc
+  document.querySelectorAll(".course").forEach(c => {
+    c.style.background = "white";
+  });
+
+  // mettre le cours sélectionné en vert
+  btn.parentElement.style.background = "#bbf7d0";
+  }
 
 /* ENVOI FIREBASE */
 function envoyer(){
