@@ -528,24 +528,24 @@ function afficherCours(){
 }
 
 
+let btnChoisi = null;
+
 function reserver(btn, cours) {
 
   if(!checkAuth()) return;
 
   coursChoisi = cours;
 
-  // afficher formulaire
+  btnChoisi = btn;
+
   document.getElementById("formSection").style.display = "block";
 
-  // remettre toutes les cartes en blanc
   document.querySelectorAll(".course").forEach(c => {
     c.style.background = "white";
   });
 
-  // mettre le cours sélectionné en vert
   btn.parentElement.style.background = "#bbf7d0";
   }
-
 /* ENVOI FIREBASE */
 function envoyer(){
   if(!firebase.auth().currentUser){
@@ -569,8 +569,14 @@ function envoyer(){
   createdAt: firebase.firestore.FieldValue.serverTimestamp()
 })
 .then(()=>{
-  document.getElementById("success").innerText="✔ Réservation envoyée";
+  document.getElementById("success").innerText =
+"✔ Réservation envoyée pour : " + coursChoisi;
 
+// 👉 changer le bouton ici
+if(btnChoisi){
+  btnChoisi.innerText = "Réservé ✔";
+  btnChoisi.disabled = true;
+  }
   
 })
 .catch(e=>alert(e.message));
