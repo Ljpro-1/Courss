@@ -526,6 +526,43 @@ function goActu(){
   if (!checkAuth()) return;
 
   showPage("actuPage");
+  chargerActu(); // ✅ AJOUTER ÇA
+  }
+  function chargerActu(){
+  let div = document.getElementById("actus");
+  let empty = document.getElementById("emptyActu");
+
+  div.innerHTML = "Chargement...";
+  empty.style.display = "none";
+
+  db.collection("actus")
+    .orderBy("createdAt", "desc")
+    .get()
+    .then(snapshot => {
+
+      div.innerHTML = "";
+
+      if(snapshot.empty){
+        empty.style.display = "block";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        let a = doc.data();
+
+        div.innerHTML += `
+          <div class="info">
+            <b>${a.titre || "Sans titre"}</b><br>
+            ${a.contenu || ""}
+          </div>
+        `;
+      });
+
+    })
+    .catch(err => {
+      div.innerHTML = "Erreur de chargement";
+      console.log(err);
+    });
 }
 /* COURS UNIQUE */
 
@@ -626,6 +663,7 @@ function afficherCours(){
 });
   });
 }
+  
 
 function reserver(btn, cours) {
 
