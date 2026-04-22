@@ -2,13 +2,11 @@
 <html lang="fr">
 <head>
   <style>
-:root {
-  color-scheme: light;
-}
-
-body {
-  background: #1e3c72;
-  color: white;
+body{
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e3a8a);
+  color:white;
+  min-height:100vh;
 }
   </style>
   <link rel="manifest" href="manifest.json">
@@ -491,89 +489,104 @@ function goCours() {
 
 
 /* COURS UNIQUE */
-
 function afficherCours(){
   let div = document.getElementById("courses");
 
-  div.innerHTML = "<p>Chargement des cours...</p>";
+  div.innerHTML = "<p>Chargement...</p>";
 
-  db.collection("courses").onSnapshot(snapshot => {
+  db.collection("courses").get().then(snapshot => {
+
+    let universite = {};
+    let lycee = {};
+
+    snapshot.forEach(doc => {
+      let c = doc.data();
+
+      // 🎓 UNIVERSITÉ
+      if(c.categorie === "universite"){
+        if(!universite[c.niveau]){
+          universite[c.niveau] = [];
+        }
+        universite[c.niveau].push(c);
+      }
+
+      // 🏫 LYCÉE
+      if(c.categorie === "lycee"){
+        if(!lycee[c.niveau]){
+          lycee[c.niveau] = [];
+        }
+        lycee[c.niveau].push(c);
+      }
+    });
 
     div.innerHTML = "";
 
+    // =====================
     // 🎓 UNIVERSITÉ
-    div.innerHTML += `
-      <h2>🎓 Université</h2>
+    // =====================
+    for(let niveau in universite){
+      div.innerHTML += `
+        <div class="course">
+          <h2>📊 ${niveau}</h2>
 
-      <div class="course">
-        <h3>📊 Économie (L1)</h3>
+          ${universite[niveau].map(c => `
+            <div class="info">
+              ${c.matiere}<br>
+              <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
+                Réserver
+              </button>
+            </div>
+          `).join("")}
 
-        <div class="info">
-          ⚖️ Droit civil <br>
-          <button onclick="reserver(this, 'Droit civil L1')">Réserver</button>
         </div>
+      `;
+    }
 
-        <div class="info">
-          📜 Droit constitutionnel <br>
-          <button onclick="reserver(this, 'Droit constitutionnel L1')">Réserver</button>
-        </div>
-      </div>
-    `;
-
+    // =====================
     // 🏫 LYCÉE
-    div.innerHTML += `
-      <h2>🏫 Lycée</h2>
+    // =====================
+    div.innerHTML += `<h2 style="margin-top:30px;">🏫 Lycée</h2>`;
 
-      <div class="course">
-        <h3>📘 Seconde</h3>
-        <button onclick="reserver(this, 'Seconde')">Réserver</button>
-      </div>
+    for(let niveau in lycee){
 
-      <div class="course">
-        <h3>📗 Première</h3>
-        <button onclick="reserver(this, 'Première')">Réserver</button>
-      </div>
+      let cours = lycee[niveau];
 
-      <div class="course">
-        <h3>📕 Terminal</h3>
+      // 👉 vérifier si il y a des matières
+      let hasMatiere = cours.some(c => c.matiere);
 
-        <div class="info">
-          SES <br>
-          <button onclick="reserver(this, 'Terminal SES')">Réserver</button>
-        </div>
+      if(hasMatiere){
+        // 🔥 AFFICHER AVEC MATIÈRES
+        div.innerHTML += `
+          <div class="course">
+            <h3>📘 ${niveau}</h3>
 
-        <div class="info">
-          Mathématiques <br>
-          <button onclick="reserver(this, 'Terminal Math')">Réserver</button>
-        </div>
+            ${cours.map(c => `
+              <div class="info">
+                ${c.matiere}<br>
+                <button onclick="reserver(this, '${c.matiere} ${niveau}')">
+                  Réserver
+                </button>
+              </div>
+            `).join("")}
 
-        <div class="info">
-          Physique <br>
-          <button onclick="reserver(this, 'Terminal Physique')">Réserver</button>
-        </div>
+          </div>
+        `;
+      } else {
+        // 🔹 AFFICHAGE SIMPLE
+        div.innerHTML += `
+          <div class="course">
+            <h3>📘 ${niveau}</h3>
+            <button onclick="reserver(this, '${niveau}')">
+              Réserver
+            </button>
+          </div>
+        `;
+      }
 
-        <div class="info">
-          SVT <br>
-          <button onclick="reserver(this, 'Terminal SVT')">Réserver</button>
-        </div>
-      </div>
-    `;
+    }
 
-    // 🔥 FIREBASE (cours ajoutés)
-    snapshot.forEach(doc => {
-  let c = doc.data();
-
-  // 🎓 UNIVERSITÉ → ÉCONOMIE
-  if(c.categorie === "universite" && c.branche === "economie"){
-    div.innerHTML += `
-      <div class="info">
-        📘 ${c.matiere} <br>
-        <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
-          Réserver
-        </button>
-      </div>
-    `;
-  }
+  });
+}
 
   // 🏫 TERMINAL
   if(c.categorie === "lycee" && c.branche === "terminal"){
