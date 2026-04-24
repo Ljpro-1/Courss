@@ -841,8 +841,10 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
+  setTimeout(() => {
   const btn = document.getElementById("installBtn");
-  btn.style.display = "block";
+  if (btn) btn.style.display = "block";
+}, 500);
 
   btn.onclick = async () => {
     if (!deferredPrompt) return;
