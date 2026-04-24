@@ -841,26 +841,28 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  setTimeout(() => {
   const btn = document.getElementById("installBtn");
-  if (btn) btn.style.display = "block";
-}, 500);
 
-  btn.onclick = async () => {
-    if (!deferredPrompt) return;
+  if (btn) {
+    btn.style.display = "block";
 
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
+    btn.onclick = async () => {
+      if (!deferredPrompt) return;
 
-    if (choice.outcome === "accepted") {
-      console.log("Installée ✔");
-    } else {
-      console.log("Refusée ❌");
-    }
+      deferredPrompt.prompt();
 
-    deferredPrompt = null;
-    btn.style.display = "none";
-  };
+      const choice = await deferredPrompt.userChoice;
+
+      if (choice.outcome === "accepted") {
+        console.log("Installée ✔");
+      } else {
+        console.log("Refusée ❌");
+      }
+
+      deferredPrompt = null;
+      btn.style.display = "none";
+    };
+  }
 });
 </script>
 
