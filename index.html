@@ -627,103 +627,82 @@ function goActu(){
   chargerActu(); // ✅ AJOUTER ÇA
   }
   async function chargerActu() {
-  let div = document.getElementById("actus");
-  let empty = document.getElementById("emptyActu");
+  const div = document.getElementById("actus");
+  const empty = document.getElementById("emptyActu");
+
+  if (!div || !empty) return;
+
+  div.innerHTML = "<p>Chargement automatique des actualités...</p>";
   empty.style.display = "none";
 
-  div.innerHTML = "Chargement des actualités étudiantes...";
-  empty.style.display = "none";
+  try {
+    // Proxy RSS pour éviter blocage navigateur
+    const sources = [
+      "https://api.rss2json.com/v1/api.json?rss_url=https://www.lexpress.mg/feed/",
+      "https://api.rss2json.com/v1/api.json?rss_url=https://2424.mg/feed/",
+      "https://api.rss2json.com/v1/api.json?rss_url=https://newsmada.com/feed/"
+    ];
 
-  div.innerHTML = "";
+    let allNews = [];
 
-  // Date du jour
-  let today = new Date().toLocaleDateString("fr-FR");
+    for (let url of sources) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
 
-  // Sources fiables (à mettre à jour manuellement ou via scraping futur)
-const actualites = [
-  {
-    titre: "Université d’Antananarivo : sanctions contre 48 étudiants pour fraude",
-    contenu: `
-      L’Université d’Antananarivo a récemment sanctionné 48 étudiants impliqués dans des cas de fraude,
-      usurpation d’identité et tricherie durant les examens universitaires.
-      Les sanctions incluent exclusions temporaires et exclusions définitives.
-      Cette mesure vise à renforcer l’intégrité académique dans l’enseignement supérieur malgache.
-    `,
-    source: "2424.mg",
-    date: "2026",
-    lien: "https://2424.mg/"
-  },
+        if (data.items) {
+          data.items.forEach(item => {
+            allNews.push({
+              titre: item.title,
+              contenu: item.description.replace(/<[^>]*>?/gm, "").slice(0, 300) + "...",
+              source: data.feed.title,
+              date: new Date(item.pubDate).toLocaleDateString("fr-FR"),
+              lien: item.link
+            });
+          });
+        }
+      } catch (e) {
+        console.log("Erreur source :", url);
+      }
+    }
 
-  {
-    titre: "CNTEMAD devient Université Virtuelle Publique",
-    contenu: `
-      Le CNTEMAD poursuit sa transformation numérique pour devenir une Université Virtuelle Publique.
-      Cette modernisation permettra aux étudiants de suivre des formations universitaires à distance
-      via téléphone, internet et plateformes numériques, améliorant l’accès à l’enseignement supérieur.
-    `,
-    source: "Moov Madagascar / Newsmada",
-    date: "2026",
-    lien: "https://new.moov.mg/"
-  },
+    // Trier du plus récent au plus ancien
+    allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  {
-    titre: "Les bourses étudiantes restent insuffisantes pour de nombreux universitaires",
-    contenu: `
-      De nombreux étudiants à Madagascar rencontrent encore des difficultés financières importantes.
-      Les bourses universitaires actuelles couvrent rarement les dépenses liées au logement,
-      transport, alimentation et matériel pédagogique.
-      Beaucoup doivent travailler en parallèle de leurs études.
-    `,
-    source: "L'Express de Madagascar",
-    date: "2026",
-    lien: "https://www.lexpress.mg/"
-  },
+    div.innerHTML = "";
 
-  {
-    titre: "Nouveaux investissements numériques pour les universités malgaches",
-    contenu: `
-      Le gouvernement malgache accélère la numérisation de l’enseignement supérieur
-      avec distribution d’ordinateurs, infrastructures connectées,
-      et amélioration de l’accès aux ressources numériques pour les étudiants.
-    `,
-    source: "WeAreTech Africa / Moov",
-    date: "2026",
-    lien: "https://www.wearetech.africa/"
-  }
-];
+    if (allNews.length === 0) {
+      empty.style.display = "block";
+      return;
+    }
 
+    // Afficher max 15 actualités
+    allNews.slice(0, 15).forEach(a => {
+      div.innerHTML += `
+        <div class="actu-card">
+          <div class="actu-header">📢 ${a.titre}</div>
+          <div class="actu-content">
+            ${a.contenu}
+            <br><br>
+            <b>📰 Source :</b> ${a.source}
+            <br>
+            <b>📅 Date :</b> ${a.date}
+            <br><br>
+            <a href="${a.lien}" target="_blank" style="color:#2563eb;font-weight:bold;">
+              Lire plus →
+            </a>
+          </div>
+        </div>
+      `;
+    });
 
-  if (actualites.length === 0) {
+  } catch (error) {
+    console.error(error);
+    div.innerHTML = "";
+    empty.innerText = "Impossible de charger les actualités aujourd’hui.";
     empty.style.display = "block";
-    return;
   }
-if(actualites.length === 0){
-  empty.style.display = "block";
-  return;
 }
-  actualites.forEach(a => {
-    div.innerHTML += `
-      <div class="actu-card">
-        <div class="actu-header">
-          📢 ${a.titre}
-        </div>
-
-        <div class="actu-content">
-          ${a.contenu}
-          <br><br>
-          <b>📰 Source :</b> ${a.source}
-          <br>
-          <b>📅 Date :</b> ${today}
-          <br><br>
-          <a href="${a.lien}" target="_blank" style="color:#2563eb;font-weight:bold;">
-            Lire plus →
-          </a>
-        </div>
-      </div>
-    `;
-  });
-}
-
 /* COURS UNIQUE */
 function goBack(){
 
