@@ -1406,5 +1406,52 @@ Cette guerre montre l’importance de la paix, du respect des droits humains et 
 
 }
 </script>
+  <script>
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+
+  // Empêche popup automatique
+  e.preventDefault();
+
+  deferredPrompt = e;
+
+  // Création bouton installer
+  const installBtn = document.createElement("button");
+
+  installBtn.innerText = "📲 Ajouter à l'écran";
+
+  installBtn.style.position = "fixed";
+  installBtn.style.bottom = "20px";
+  installBtn.style.right = "20px";
+  installBtn.style.zIndex = "9999";
+  installBtn.style.padding = "12px 20px";
+  installBtn.style.border = "none";
+  installBtn.style.borderRadius = "30px";
+  installBtn.style.background = "#2563eb";
+  installBtn.style.color = "white";
+  installBtn.style.fontWeight = "bold";
+
+  document.body.appendChild(installBtn);
+
+  installBtn.addEventListener("click", async () => {
+
+    installBtn.style.display = "none";
+
+    deferredPrompt.prompt();
+
+    const choiceResult = await deferredPrompt.userChoice;
+
+    if (choiceResult.outcome === "accepted") {
+      console.log("Application installée");
+    } else {
+      console.log("Installation refusée");
+    }
+
+    deferredPrompt = null;
+  });
+
+});
+</script>
 </body>
 </html>
