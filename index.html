@@ -343,6 +343,71 @@ hr{
   height:1px;
   background:#ddd;
 }
+/* RESUME CARD */
+.resume-card{
+  background:white;
+  color:#1e293b;
+  padding:20px;
+  border-radius:18px;
+  margin:20px 0;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  animation:fadeIn 0.4s ease;
+  border-left:6px solid #2563eb;
+}
+
+/* TITRE */
+.resume-top{
+  font-size:20px;
+  font-weight:bold;
+  color:#1d4ed8;
+  margin-bottom:12px;
+}
+
+/* BADGES */
+.resume-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.badge{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+  color:white;
+}
+
+.classe{
+  background:#2563eb;
+}
+
+.matiere{
+  background:#10b981;
+}
+
+.date{
+  background:#f59e0b;
+}
+
+/* MOTS CLES */
+.resume-keywords{
+  background:#eff6ff;
+  color:#1e40af;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:12px;
+  font-weight:bold;
+  border-left:4px solid #2563eb;
+}
+
+/* CONTENU */
+.resume-content{
+  line-height:1.7;
+  font-size:15px;
+  white-space:pre-line;
+}
 </style>
 </head>
 
@@ -361,6 +426,10 @@ hr{
     <button onclick="goActuFree()" class="actu-btn">
       📢 Actualités
     </button>
+    <button onclick="goResumeFree()" class="actu-btn">
+  📘 Les Résumés
+</button>
+
   </div>
 
 </div>
@@ -498,6 +567,20 @@ hr{
     Aucune information disponible pour le moment
   </p>
 <button onclick="goBack()">Retour</button>
+</div>
+<!-- RESUMES -->
+<div id="resumePage" class="page">
+
+  <h2>📘 Les Résumés</h2>
+
+  <div id="resumes"></div>
+
+  <p id="emptyResume" style="opacity:0.7;">
+    Aucun résumé disponible pour le moment
+  </p>
+
+  <button onclick="goBack()">Retour</button>
+
 </div>
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -945,6 +1028,382 @@ setInterval(() => {
 // bouton entrer
 function enterSite(){
   showPage("loginPage");
+}
+function goResumeFree(){
+  showPage("resumePage");
+  chargerResumes();
+}
+function chargerResumes(){
+
+  let div = document.getElementById("resumes");
+  let empty = document.getElementById("emptyResume");
+
+  empty.style.display = "none";
+
+  /*
+  =========================================
+  ✅ RÉSUMÉ PERMANENT FORMAT BAC MADAGASCAR
+  =========================================
+  */
+
+  div.innerHTML = `
+
+  <div class="resume-card">
+
+    <div class="resume-top">
+      📘 HISTOIRE : LA DEUXIÈME GUERRE MONDIALE
+    </div>
+
+    <div class="resume-meta">
+
+      <span class="badge classe">
+        🎓 Classe : Terminale
+      </span>
+
+      <span class="badge matiere">
+        📚 Matière : Histoire et Géographie
+      </span>
+
+      <span class="badge date">
+        🇲🇬 Programme Malagasy
+      </span>
+
+    </div>
+
+    <div class="resume-keywords">
+      🔑 Hitler, Alliés, Axe, SDN, ONU,
+      Guerre froide, Stalingrad, Normandie
+    </div>
+
+    <div class="resume-content">
+
+<h3 style="color:#dc2626; font-size:22px;">
+INTRODUCTION
+</h3>
+
+<p>
+La Deuxième Guerre mondiale est un conflit international qui s’est déroulé de 1939 à 1945. Elle oppose les puissances de l’Axe dirigées principalement par l’Allemagne, l’Italie et le Japon contre les Alliés composés notamment de la France, du Royaume-Uni, des États-Unis et de l’Union soviétique.
+</p>
+
+<p>
+Cette guerre constitue le conflit le plus meurtrier de l’histoire de l’humanité en raison du nombre très élevé de victimes humaines et des importantes destructions matérielles qu’elle a provoquées.
+</p>
+
+<p>
+Les tensions politiques, économiques et territoriales nées après la Première Guerre mondiale favorisent progressivement le déclenchement de ce conflit mondial.
+</p>
+
+<p>
+Quelles sont alors les causes de la Deuxième Guerre mondiale, son déroulement ainsi que ses conséquences dans le monde ?
+</p>
+
+<br>
+
+<h3 style="color:#2563eb; font-size:22px;">
+DÉVELOPPEMENT
+</h3>
+
+<br>
+
+<h3 style="color:#0f766e;">
+I. LES CAUSES DE LA DEUXIÈME GUERRE MONDIALE
+</h3>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+1. Les conséquences du traité de Versailles
+</h4>
+
+<p>
+Après la Première Guerre mondiale, les vainqueurs imposent à l’Allemagne le traité de Versailles signé en 1919. Ce traité impose de lourdes sanctions :
+</p>
+
+<ul>
+<li>pertes territoriales ;</li>
+<li>désarmement ;</li>
+<li>fortes réparations économiques ;</li>
+<li>affaiblissement militaire.</li>
+</ul>
+
+<p>
+Les Allemands considèrent ce traité comme une humiliation. Cela développe un esprit de revanche dans la population allemande.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+2. La montée des régimes totalitaires
+</h4>
+
+<p>
+Dans plusieurs pays apparaissent des régimes autoritaires appelés régimes totalitaires :
+</p>
+
+<ul>
+<li>Adolf Hitler en Allemagne avec le nazisme ;</li>
+<li>Benito Mussolini en Italie avec le fascisme ;</li>
+<li>le militarisme japonais en Asie.</li>
+</ul>
+
+<p>
+Ces régimes développent le nationalisme, le culte du chef et une politique d’expansion territoriale.
+</p>
+
+<p>
+Ils souhaitent conquérir de nouveaux territoires afin d’accroître leur puissance.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+3. L’échec de la Société des Nations
+</h4>
+
+<p>
+La Société des Nations ou SDN créée après la Première Guerre mondiale a pour mission de maintenir la paix mondiale.
+</p>
+
+<p>
+Cependant, elle échoue à empêcher les agressions militaires des pays de l’Axe.
+</p>
+
+<p>
+Son incapacité favorise le développement des tensions internationales.
+</p>
+
+<br>
+
+<h3 style="color:#0f766e;">
+II. LE DÉROULEMENT DE LA DEUXIÈME GUERRE MONDIALE
+</h3>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+1. Le début de la guerre
+</h4>
+
+<p>
+Le 1er septembre 1939, l’Allemagne attaque la Pologne. La France et le Royaume-Uni déclarent alors la guerre à l’Allemagne.
+</p>
+
+<p>
+La guerre devient progressivement mondiale avec l’entrée en conflit de nombreux pays.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+2. Les victoires des puissances de l’Axe
+</h4>
+
+<p>
+Entre 1939 et 1942, l’Allemagne remporte plusieurs victoires grâce à la stratégie de la guerre éclair appelée « Blitzkrieg ».
+</p>
+
+<p>
+Une grande partie de l’Europe tombe sous domination allemande.
+</p>
+
+<p>
+Le Japon domine également plusieurs territoires en Asie et dans l’océan Pacifique.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+3. Le retournement de la guerre
+</h4>
+
+<p>
+À partir de 1942, les Alliés reprennent progressivement l’avantage.
+</p>
+
+<p>
+Plusieurs batailles importantes marquent ce retournement :
+</p>
+
+<ul>
+<li>la bataille de Stalingrad ;</li>
+<li>la bataille d’El-Alamein ;</li>
+<li>le débarquement de Normandie en 1944.</li>
+</ul>
+
+<p>
+Les armées alliées progressent ensuite vers l’Allemagne.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+4. La fin de la guerre
+</h4>
+
+<p>
+L’Allemagne capitule le 8 mai 1945 après la prise de Berlin.
+</p>
+
+<p>
+Les États-Unis utilisent ensuite la bombe atomique sur Hiroshima et Nagasaki au Japon.
+</p>
+
+<p>
+Le Japon capitule officiellement le 2 septembre 1945.
+</p>
+
+<br>
+
+<h3 style="color:#0f766e;">
+III. LES CONSÉQUENCES DE LA DEUXIÈME GUERRE MONDIALE
+</h3>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+1. Les conséquences humaines
+</h4>
+
+<p>
+La guerre provoque environ 60 millions de morts.
+</p>
+
+<p>
+Les populations civiles sont fortement touchées par les bombardements, les massacres et les famines.
+</p>
+
+<p>
+Les Juifs sont victimes d’un génocide appelé Shoah organisé par le régime nazi.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+2. Les conséquences économiques
+</h4>
+
+<p>
+De nombreuses villes, industries, routes et infrastructures sont détruites.
+</p>
+
+<p>
+L’Europe sort très affaiblie économiquement après la guerre.
+</p>
+
+<br>
+
+<h4 style="color:#1d4ed8;">
+3. Les conséquences politiques
+</h4>
+
+<p>
+L’Organisation des Nations Unies ou ONU est créée en 1945 afin de maintenir la paix mondiale.
+</p>
+
+<p>
+Deux grandes puissances dominent désormais le monde :
+</p>
+
+<ul>
+<li>les États-Unis ;</li>
+<li>l’Union soviétique.</li>
+</ul>
+
+<p>
+Leur rivalité entraîne la Guerre froide.
+</p>
+
+<br>
+
+<h3 style="color:#dc2626; font-size:22px;">
+CONCLUSION
+</h3>
+
+<p>
+La Deuxième Guerre mondiale est un conflit majeur qui a profondément bouleversé le monde contemporain.
+</p>
+
+<p>
+Ses conséquences humaines, économiques et politiques sont considérables et continuent d’influencer les relations internationales actuelles.
+</p>
+
+<p>
+Cette guerre montre l’importance de la paix, du respect des droits humains et de la coopération internationale afin d’éviter un nouveau conflit mondial.
+</p>
+
+    </div>
+
+  </div>
+
+  `;
+
+  /*
+  =========================================
+  ✅ RÉSUMÉS FIREBASE
+  =========================================
+  */
+
+  db.collection("resumes")
+    .orderBy("createdAt", "desc")
+    .get()
+    .then(snapshot => {
+
+      snapshot.forEach(doc => {
+
+        let r = doc.data();
+
+        let dateText = "";
+
+        if(r.createdAt){
+          dateText = new Date(
+            r.createdAt.seconds * 1000
+          ).toLocaleDateString("fr-FR");
+        }
+
+        div.innerHTML += `
+
+        <div class="resume-card">
+
+          <div class="resume-top">
+            📘 ${r.titre || "Sans titre"}
+          </div>
+
+          <div class="resume-meta">
+
+            <span class="badge classe">
+              🎓 ${r.classe || ""}
+            </span>
+
+            <span class="badge matiere">
+              📚 ${r.matiere || ""}
+            </span>
+
+            <span class="badge date">
+              📅 ${dateText}
+            </span>
+
+          </div>
+
+          <div class="resume-keywords">
+            🔑 ${r.motscles || ""}
+          </div>
+
+          <div class="resume-content">
+            ${r.contenu || ""}
+          </div>
+
+        </div>
+
+        `;
+      });
+
+    })
+    .catch(error => {
+
+      console.log(error);
+
+    });
+
 }
 </script>
 </body>
