@@ -408,6 +408,12 @@ hr{
   font-size:15px;
   white-space:pre-line;
 }
+#dashReservations{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  margin-top:20px;
+}
 </style>
 </head>
 
@@ -532,6 +538,7 @@ hr{
     <button onclick="goActu()">📢 Actualités</button>
     <button onclick="goAdmin()">⚙️ Admin Cours</button>
 <button onclick="goAdminResume()">📘 Admin Résumés</button>
+<button onclick="goDash()">📊 Dashboard Réservations</button>
   </div>
 
  <button onclick="goBack()">Retour</button>
@@ -626,6 +633,15 @@ hr{
   </div>
 
 </div>
+<div id="dashPage" class="page">
+
+  <h2>📊 Dashboard Réservations</h2>
+
+  <div id="dashReservations"></div>
+
+  <button onclick="goBack()">Retour</button>
+
+</div>
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -684,6 +700,54 @@ function login() {
 })
     .catch((e) => {
       alert(e.message);
+    });
+}
+function goDash(){
+  if (!checkAuth()) return;
+
+  let user = firebase.auth().currentUser;
+
+  if(user.email !== "lazadiah@gmail.com"){
+    alert("Accès refusé");
+    return;
+  }
+
+  showPage("dashPage");
+  chargerDashboard();
+}
+function chargerDashboard(){
+
+  let div = document.getElementById("dashReservations");
+
+  div.innerHTML = "Chargement...";
+
+  db.collection("reservations")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+
+      div.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        let r = doc.data();
+
+        let date = r.createdAt
+          ? new Date(r.createdAt.seconds * 1000).toLocaleString()
+          : "N/A";
+
+        div.innerHTML += `
+          <div class="actu-card">
+            <div class="actu-header">📘 ${r.cours}</div>
+
+            <div class="actu-content">
+              👤 Nom : ${r.nom} <br>
+              📧 Email : ${r.email} <br>
+              📱 WhatsApp : ${r.whatsapp} <br>
+              📅 Date : ${date}
+            </div>
+          </div>
+        `;
+      });
+
     });
 }
 function logout(){
