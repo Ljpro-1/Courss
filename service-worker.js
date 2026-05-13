@@ -1,43 +1,83 @@
-const CACHE_NAME = "cours-app-v1";
+const CACHE_NAME = "cours-v2";
 
 const urlsToCache = [
   "./",
   "./index.html",
-  "./logo.png",
-  "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
-  "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
-  "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
+  "./manifest.json",
+  "./icon.png"
 ];
 
-// INSTALL
+// INSTALLATION
 self.addEventListener("install", event => {
+
+  self.skipWaiting();
+
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
   );
+
 });
 
-// ACTIVATE (nettoyage ancien cache)
+// ACTIVATION
 self.addEventListener("activate", event => {
+
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
+    caches.keys().then(keys => {
+
+      return Promise.all(
         keys.map(key => {
+
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
-        })
-      )
-    )
-  );
-});
 
-// FETCH (offline mode)
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+        })
+      );
+
     })
   );
+
+  self.clients.claim();
+
+});
+
+// FETCH
+self.addEventListener("fetch", event => {
+
+  // 🔥 FIREBASE toujours en ligne
+  if (
+    event.request.url.includes("firestore") ||
+    event.request.url.includes("googleapis")
+  ) {
+
+    event.respondWith(fetch(event.request));
+    return;
+
+  }
+
+  // HTML toujours à jour
+  if (event.request.mode === "navigate") {
+
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match("./index.html"))
+    );
+
+    return;
+
+  }
+
+  // cache fichiers statiques
+  event.respondWith(
+
+    caches.match(event.request)
+      .then(response => {
+
+        return response || fetch(event.request);
+
+      })
+
+  );
+
 });
