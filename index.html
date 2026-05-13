@@ -530,6 +530,8 @@ hr{
 </div>
 <button onclick="goCours()">Voir cours</button>
     <button onclick="goActu()">📢 Actualités</button>
+    <button onclick="goAdmin()">⚙️ Admin Cours</button>
+<button onclick="goAdminResume()">📘 Admin Résumés</button>
   </div>
 
  <button onclick="goBack()">Retour</button>
@@ -582,6 +584,48 @@ hr{
   <button onclick="goBack()">Retour</button>
 
 </div>
+<div id="adminPage" class="page">
+
+  <h2>⚙️ Admin - Cours</h2>
+
+  <div class="card">
+
+    <input type="text" id="admin_matiere" placeholder="Matière">
+    <input type="text" id="admin_niveau" placeholder="Niveau">
+    <input type="text" id="admin_categorie" placeholder="Catégorie (lycee/universite)">
+    <input type="text" id="admin_branche" placeholder="Branche">
+
+    <button onclick="ajouterCours()">Ajouter cours</button>
+<button onclick="goBack()" style="margin-top:20px;">
+  🔙 Retour
+</button>
+    <p id="msgCours"></p>
+
+  </div>
+
+</div>
+<div id="adminResumePage" class="page">
+
+  <h2>📘 Admin - Résumés</h2>
+
+  <div class="card">
+
+    <input type="text" id="r_titre" placeholder="Titre">
+    <input type="text" id="r_classe" placeholder="Classe">
+    <input type="text" id="r_matiere" placeholder="Matière">
+    <input type="text" id="r_motscles" placeholder="Mots clés">
+
+    <textarea id="r_contenu" placeholder="Contenu du résumé"></textarea>
+
+    <button onclick="ajouterResume()">Ajouter résumé</button>
+<button onclick="goBack()" style="margin-top:20px;">
+  🔙 Retour
+</button>
+    <p id="msgResume"></p>
+
+  </div>
+
+</div>
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -600,6 +644,7 @@ var firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const db = firebase.firestore();
 
 let coursChoisi = "";
@@ -664,7 +709,13 @@ function resetPassword(){
 let appStarted = false;
 
 firebase.auth().onAuthStateChanged(user => {
-  // ❌ NE RIEN FAIRE ICI
+
+  if (user) {
+    showPage("homePage"); // déjà connecté
+  } else {
+    showPage("loginPage"); // pas connecté
+  }
+
 });
 /* NAVIGATION */
 function showPage(id){
@@ -802,9 +853,9 @@ function afficherCours(){
 
   div.innerHTML = "<p>Chargement des cours...</p>";
 
-  db.collection("courses").get().then(snapshot => {
+  db.collection("courses").onSnapshot(snapshot => {
 
-    div.innerHTML = "";
+  div.innerHTML = "";
 
     // 🎓 UNIVERSITÉ
     div.innerHTML += `
@@ -985,16 +1036,41 @@ window.addEventListener("beforeinstallprompt", (e) => {
   }
 });
 </script>
-
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js")
-      .then(reg => console.log("Service Worker OK ✔", reg.scope))
-      .catch(err => console.log("Erreur SW ❌", err));
-  });
-}
+  if ("serviceWorker" in navigator) {
+    
+    window.addEventListener("load", async () => {
+      
+      try {
+        
+        const reg = await navigator.serviceWorker.register(
+          "./service-worker.js?v=2"
+        );
+        
+        console.log("Service Worker OK ✔");
+        
+        // force mise à jour
+        reg.update();
+        
+        // recharge auto quand nouvelle version
+        navigator.serviceWorker.addEventListener(
+          "controllerchange",
+          () => {
+            window.location.reload();
+          }
+        );
+        
+      } catch (err) {
+        
+        console.log(err);
+        
+      }
+      
+    });
+    
+  }
 </script>
+
 <script>
 // alternance des images
 let current = 1;
@@ -1032,6 +1108,92 @@ function enterSite(){
 function goResumeFree(){
   showPage("resumePage");
   chargerResumes();
+}
+function ajouterCours(){
+
+  let matiere = document.getElementById("admin_matiere").value;
+  let niveau = document.getElementById("admin_niveau").value;
+  let categorie = document.getElementById("admin_categorie").value;
+  let branche = document.getElementById("admin_branche").value;
+
+  if(!matiere || !niveau || !categorie || !branche){
+    alert("Remplir tous les champs");
+    return;
+  }
+
+  db.collection("courses").add({
+    matiere,
+    niveau,
+    categorie,
+    branche,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    document.getElementById("msgCours").innerText = "✔ Cours ajouté";
+
+    document.getElementById("admin_matiere").value = "";
+    document.getElementById("admin_niveau").value = "";
+    document.getElementById("admin_categorie").value = "";
+    document.getElementById("admin_branche").value = "";
+  })
+  .catch(e => alert(e.message));
+}
+function ajouterResume(){
+
+  let titre = document.getElementById("r_titre").value;
+  let classe = document.getElementById("r_classe").value;
+  let matiere = document.getElementById("r_matiere").value;
+  let motscles = document.getElementById("r_motscles").value;
+  let contenu = document.getElementById("r_contenu").value;
+
+  if(!titre || !classe || !matiere || !contenu){
+    alert("Remplir tous les champs");
+    return;
+  }
+
+  db.collection("resumes").add({
+    titre,
+    classe,
+    matiere,
+    motscles,
+    contenu,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    document.getElementById("msgResume").innerText = "✔ Résumé ajouté";
+
+    document.getElementById("r_titre").value = "";
+    document.getElementById("r_classe").value = "";
+    document.getElementById("r_matiere").value = "";
+    document.getElementById("r_motscles").value = "";
+    document.getElementById("r_contenu").value = "";
+  })
+  .catch(e => alert(e.message));
+}
+function goAdmin(){
+  if (!checkAuth()) return;
+
+  let user = firebase.auth().currentUser;
+
+  if(user.email !== "lazadiah@gmail.com"){
+    alert("Accès refusé");
+    return;
+  }
+
+  showPage("adminPage");
+}
+
+function goAdminResume(){
+  if (!checkAuth()) return;
+
+  let user = firebase.auth().currentUser;
+
+  if(user.email !== "lazadiah@gmail.com"){
+    alert("Accès refusé");
+    return;
+  }
+
+  showPage("adminResumePage");
 }
 function chargerResumes(){
 
@@ -1344,9 +1506,9 @@ Cette guerre montre l’importance de la paix, du respect des droits humains et 
   */
 
   db.collection("resumes")
-    .orderBy("createdAt", "desc")
-    .get()
-    .then(snapshot => {
+  .orderBy("createdAt", "desc")
+.onSnapshot(snapshot => {
+  div.innerHTML = "";
 
       snapshot.forEach(doc => {
 
