@@ -684,6 +684,10 @@ function register() {
     })
     .catch(e => alert(e.message));
   }
+  function isAdmin(){
+  let user = firebase.auth().currentUser;
+  return user && user.email === "lazadiah@gmail.com";
+}
 function login() {
 
   let email = document.getElementById("email").value;
@@ -725,29 +729,105 @@ function chargerDashboard(){
     .orderBy("createdAt", "desc")
     .onSnapshot(snapshot => {
 
-      div.innerHTML = "";
+      let grouped = {};
+      let counts = {};
 
       snapshot.forEach(doc => {
+
         let r = doc.data();
+
+        let id = doc.id;
 
         let date = r.createdAt
           ? new Date(r.createdAt.seconds * 1000).toLocaleString()
           : "N/A";
 
-        div.innerHTML += `
-          <div class="actu-card">
-            <div class="actu-header">📘 ${r.cours}</div>
+        // 🔢 compteur
+        if (!counts[r.cours]) {
+          counts[r.cours] = 0;
+        }
+        counts[r.cours]++;
 
-            <div class="actu-content">
-              👤 Nom : ${r.nom} <br>
-              📧 Email : ${r.email} <br>
-              📱 WhatsApp : ${r.whatsapp} <br>
-              📅 Date : ${date}
-            </div>
-          </div>
-        `;
+        // 📚 groupement
+        if (!grouped[r.cours]) {
+          grouped[r.cours] = [];
+        }
+
+        grouped[r.cours].push({
+          id: id,
+          nom: r.nom,
+          email: r.email,
+          whatsapp: r.whatsapp,
+          date: date
+        });
+
       });
 
+      div.innerHTML = "";
+
+      Object.keys(grouped).forEach(cours => {
+
+        div.innerHTML += `
+          <div class="course">
+            <h3>📘 ${cours} 
+              <span style="font-size:14px;color:#64748b;">
+                (${counts[cours]} réservation${counts[cours] > 1 ? "s" : ""})
+              </span>
+            </h3>
+        `;
+
+        grouped[cours].forEach(r => {
+
+          div.innerHTML += `
+            <div class="actu-card">
+              <div class="actu-content">
+
+                👤 Nom : ${r.nom} <br>
+
+                📧 Email : 
+                <a href="mailto:${r.email}" style="color:#2563eb;">
+                  ${r.email}
+                </a>
+                <br>
+
+                📱 WhatsApp : 
+                <a href="https://wa.me/${r.whatsapp.replace(/\D/g,'')}" target="_blank" style="color:#10b981;">
+                  ${r.whatsapp}
+                </a>
+                <br>
+
+                📅 Date : ${r.date}
+                <br><br>
+
+                🗑 <button onclick="supprimerReservation('${r.id}')" 
+                  style="background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;">
+                  Supprimer
+                </button>
+
+              </div>
+            </div>
+          `;
+        });
+
+        div.innerHTML += `</div>`;
+      });
+
+      if (snapshot.empty) {
+        div.innerHTML = "<p>Aucune réservation pour le moment.</p>";
+      }
+
+    });
+}
+function supprimerReservation(id){
+
+  if(!confirm("Supprimer cette réservation ?")) return;
+
+  db.collection("reservations").doc(id).delete()
+    .then(() => {
+      alert("✔ Réservation supprimée");
+    })
+    .catch(e => {
+      alert(e.message);
     });
 }
 function logout(){
@@ -912,105 +992,76 @@ function goBack(){
 
 }
 
-function afficherCours(){
+function afficherCours() {
   let div = document.getElementById("courses");
-
+  
   div.innerHTML = "<p>Chargement des cours...</p>";
-
+  
   db.collection("courses").onSnapshot(snapshot => {
-
-  div.innerHTML = "";
-
-    // 🎓 UNIVERSITÉ
-    div.innerHTML += `
-      <h2>🎓 Université</h2>
-
-      <div class="course">
-        <h3>📊 Économie (L1)</h3>
-
-        <div class="info">
-          ⚖️ Droit civil <br>
-          <button onclick="reserver(this, 'Droit civil L1')">Réserver</button>
-        </div>
-
-        <div class="info">
-          📜 Droit constitutionnel <br>
-          <button onclick="reserver(this, 'Droit constitutionnel L1')">Réserver</button>
-        </div>
-      </div>
-    `;
-
-    // 🏫 LYCÉE
-    div.innerHTML += `
-      <h2>🏫 Lycée</h2>
-
-      <div class="course">
-        <h3>📘 Seconde</h3>
-        <button onclick="reserver(this, 'Seconde')">Réserver</button>
-      </div>
-
-      <div class="course">
-        <h3>📗 Première</h3>
-        <button onclick="reserver(this, 'Première')">Réserver</button>
-      </div>
-
-      <div class="course">
-        <h3>📕 Terminal</h3>
-
-        <div class="info">
-          SES <br>
-          <button onclick="reserver(this, 'Terminal SES')">Réserver</button>
-        </div>
-
-        <div class="info">
-          Mathématiques <br>
-          <button onclick="reserver(this, 'Terminal Math')">Réserver</button>
-        </div>
-
-        <div class="info">
-          Physique <br>
-          <button onclick="reserver(this, 'Terminal Physique')">Réserver</button>
-        </div>
-
-        <div class="info">
-          SVT <br>
-          <button onclick="reserver(this, 'Terminal SVT')">Réserver</button>
-        </div>
-      </div>
-    `;
-
-    // 🔥 FIREBASE (cours ajoutés)
+    
+    let universiteHTML = "";
+    let lyceeHTML = "";
+    
     snapshot.forEach(doc => {
-  let c = doc.data();
+      let c = doc.data();
+      let id = doc.id;
+      
+      // =====================
+      // 🎓 UNIVERSITÉ
+      // =====================
+      if (c.categorie === "universite") {
+        
+        universiteHTML += `
+          <div class="info">
+            📘 <b>${c.matiere}</b> - ${c.niveau} <br>
 
-  // 🎓 UNIVERSITÉ → ÉCONOMIE
-  if(c.categorie === "universite" && c.branche === "economie"){
-    div.innerHTML += `
-      <div class="info">
-        📘 ${c.matiere} <br>
-        <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
-          Réserver
-        </button>
-      </div>
-    `;
-  }
+            <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
+              Réserver
+            </button>
 
-  // 🏫 TERMINAL
-  if(c.categorie === "lycee" && c.branche === "terminal"){
-    div.innerHTML += `
-      <div class="info">
-        📘 ${c.matiere} <br>
-        <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
-          Réserver
-        </button>
-      </div>
+            ${isAdmin() ? `
+              <button onclick="supprimerCours('${id}')"
+                style="background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:8px;margin-top:8px;">
+                🗑 Supprimer
+              </button>
+            ` : ""}
+          </div>
+        `;
+      }
+      
+      // =====================
+      // 🏫 LYCÉE
+      // =====================
+      if (c.categorie === "lycee") {
+        
+        lyceeHTML += `
+          <div class="info">
+            📘 <b>${c.matiere}</b> - ${c.niveau} <br>
+
+            <button onclick="reserver(this, '${c.matiere} ${c.niveau}')">
+              Réserver
+            </button>
+
+            ${isAdmin() ? `
+              <button onclick="supprimerCours('${id}')"
+                style="background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:8px;margin-top:8px;">
+                🗑 Supprimer
+              </button>
+            ` : ""}
+          </div>
+        `;
+      }
+    });
+    
+    div.innerHTML = `
+      <h2>🎓 Université</h2>
+      ${universiteHTML || "<p>Aucun cours universitaire</p>"}
+
+      <h2>🏫 Lycée</h2>
+      ${lyceeHTML || "<p>Aucun cours lycée</p>"}
     `;
-  }
-});
   });
 }
-  
-
 function reserver(btn, cours) {
 
   if(!checkAuth()) return;
@@ -1174,6 +1225,7 @@ function goResumeFree(){
   chargerResumes();
 }
 function ajouterCours(){
+  
 
   let matiere = document.getElementById("admin_matiere").value;
   let niveau = document.getElementById("admin_niveau").value;
@@ -1201,6 +1253,17 @@ function ajouterCours(){
     document.getElementById("admin_branche").value = "";
   })
   .catch(e => alert(e.message));
+}
+function supprimerCours(id){
+
+  if(!confirm("Supprimer ce cours ?")) return;
+
+  db.collection("courses").doc(id).delete()
+    .then(() => {
+      alert("✔ Cours supprimé");
+    })
+    .catch(e => alert(e.message));
+
 }
 function ajouterResume(){
 
@@ -1575,8 +1638,8 @@ Cette guerre montre l’importance de la paix, du respect des droits humains et 
   div.innerHTML = "";
 
       snapshot.forEach(doc => {
-
-        let r = doc.data();
+  let c = doc.data();
+  let id = doc.id;
 
         let dateText = "";
 
